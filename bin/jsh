@@ -73,7 +73,11 @@ jsh.echo = () => {
  */
 jsh.eval = () => {
   shell.question('[eval] -> ', expr => {
-    eval(expr);
+    try {
+      eval(expr);
+    } catch(err) {
+      console.error(err);
+    }
     shellPrompt();
   });
 };
