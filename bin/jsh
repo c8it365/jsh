@@ -1,0 +1,107 @@
+#!/usr/bin/env node
+
+const readline = require('readline');
+
+// シェル
+const shell = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+// プロンプト
+function shellPrompt() {
+  shell.question('-> ', command => {
+    // コマンドが存在するか
+    if (jsh[command]) {
+      // コマンドを実行
+      try {
+        jsh[command]();
+      } catch(err) {
+        // コマンドが失敗したら
+        console.error(err);
+      }
+    } else {
+      if (command !== '') {
+        // コマンドが入力されていたら
+        console.log(`${command} not found`);
+      }
+      // 自分自身を呼び出す
+      shellPrompt();
+    }
+  });
+}
+
+// プロンプトを表示
+shellPrompt();
+
+const jsh = {};
+
+/**
+ * builtin
+ * コマンド一覧を表示
+ */
+jsh.builtin = () => {
+  for (command in jsh) {
+    console.log(command);
+    shellPrompt();
+  }
+};
+
+/**
+ * clear
+ * コンソールをクリア
+ */
+jsh.clear = () => {
+  console.clear();
+  shellPrompt();
+};
+
+/**
+ * echo
+ * 文字列をコンソールに出力
+ */
+jsh.echo = () => {
+  shell.question('[echo] -> ', str => {
+    console.log(str);
+    shellPrompt();
+  });
+};
+
+/**
+ * eval
+ * 文字列を式として評価
+ */
+jsh.eval = () => {
+  shell.question('[eval] -> ', expr => {
+    eval(expr);
+    shellPrompt();
+  });
+};
+
+/**
+ * exec
+ * 外部コマンドを実行
+ */
+jsh.exec = () => {
+  let exec = require('child_process').exec;
+  shell.question('[exec] -> ', expr => {
+    exec(expr, (err, stdout, stderr) => {
+      if (err) {
+        // エラーが発生したら
+        console.error(`[err]\n${err}`);
+        return;
+      }
+      console.log(`[stdout]\n${stdout}`);
+      console.log(`[stderr]\n${stderr}`);
+    });
+    shellPrompt();
+  });
+};
+
+/**
+ * exit
+ * シェルを終了
+ */
+jsh.exit = () => {
+  shell.close();
+};
