@@ -41,7 +41,7 @@ const jsh = {};
  * コマンド一覧を表示
  */
 jsh.builtin = () => {
-  for (command in jsh) {
+  for (let command in jsh) {
     console.log(command);
     shellPrompt();
   }
